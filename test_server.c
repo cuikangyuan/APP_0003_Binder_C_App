@@ -14,12 +14,14 @@
 #include "binder.h"
 #include "test_server.h"
 
+//	ret = svcmgr_publish(bs, svcmgr, "hello", hello_service_handler);
 int svcmgr_publish(struct binder_state *bs, uint32_t target, const char *name, void *ptr)
 {
     int status;
     unsigned iodata[512/4];
     struct binder_io msg, reply;
 
+    //1.æ³¨å†ŒæœåŠ¡ï¼šæž„é€ æ•°æ® binder io
     bio_init(&msg, iodata, sizeof(iodata), 4);
     bio_put_uint32(&msg, 0);  // strict mode header
     bio_put_string16_x(&msg, SVC_MGR_NAME);
@@ -70,9 +72,9 @@ int hello_service_handler(struct binder_state *bs,
                    struct binder_io *msg,
                    struct binder_io *reply)
 {
-	/* ¸ù¾Ýtxn->codeÖªµÀÒªµ÷ÓÃÄÄÒ»¸öº¯Êý
-	 * Èç¹ûÐèÒª²ÎÊý, ¿ÉÒÔ´ÓmsgÈ¡³ö
-	 * Èç¹ûÒª·µ»Ø½á¹û, ¿ÉÒÔ°Ñ½á¹û·ÅÈëreply
+	/* ï¿½ï¿½ï¿½ï¿½txn->codeÖªï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ô´ï¿½msgÈ¡ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ø½ï¿½ï¿½, ï¿½ï¿½ï¿½Ô°Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reply
 	 */
 
 	/* sayhello
@@ -101,7 +103,7 @@ int hello_service_handler(struct binder_state *bs,
         return 0;
 
     case HELLO_SVR_CMD_SAYHELLO_TO:
-		/* ´ÓmsgÀïÈ¡³ö×Ö·û´® */
+		/* ï¿½ï¿½msgï¿½ï¿½È¡ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ */
 		s = bio_get_string16(msg, &len);  //"IHelloService"
 		s = bio_get_string16(msg, &len);  // name
 		if (s == NULL) {
@@ -111,10 +113,10 @@ int hello_service_handler(struct binder_state *bs,
 			name[i] = s[i];
 		name[i] = '\0';
 
-		/* ´¦Àí */
+		/* ï¿½ï¿½ï¿½ï¿½ */
 		i = sayhello_to(name);
 
-		/* °Ñ½á¹û·ÅÈëreply */
+		/* ï¿½Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reply */
 		bio_put_uint32(reply, 0); /* no exception */
 		bio_put_uint32(reply, i);
 		
@@ -135,9 +137,9 @@ int goodbye_service_handler(struct binder_state *bs,
                    struct binder_io *msg,
                    struct binder_io *reply)
 {
-	/* ¸ù¾Ýtxn->codeÖªµÀÒªµ÷ÓÃÄÄÒ»¸öº¯Êý
-	 * Èç¹ûÐèÒª²ÎÊý, ¿ÉÒÔ´ÓmsgÈ¡³ö
-	 * Èç¹ûÒª·µ»Ø½á¹û, ¿ÉÒÔ°Ñ½á¹û·ÅÈëreply
+	/* ï¿½ï¿½ï¿½ï¿½txn->codeÖªï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ô´ï¿½msgÈ¡ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ø½ï¿½ï¿½, ï¿½ï¿½ï¿½Ô°Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reply
 	 */
 
 	/* sayhello
@@ -166,7 +168,7 @@ int goodbye_service_handler(struct binder_state *bs,
         return 0;
 
     case GOODBYE_SVR_CMD_SAYGOODBYE_TO:
-		/* ´ÓmsgÀïÈ¡³ö×Ö·û´® */
+		/* ï¿½ï¿½msgï¿½ï¿½È¡ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ */
 		s = bio_get_string16(msg, &len);  //"IGoodbyeService"
 		s = bio_get_string16(msg, &len);  // name
 		if (s == NULL) {
@@ -176,10 +178,10 @@ int goodbye_service_handler(struct binder_state *bs,
 			name[i] = s[i];
 		name[i] = '\0';
 
-		/* ´¦Àí */
+		/* ï¿½ï¿½ï¿½ï¿½ */
 		i = saygoodbye_to(name);
 
-		/* °Ñ½á¹û·ÅÈëreply */
+		/* ï¿½Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reply */
 		bio_put_uint32(reply, 0); /* no exception */
 		bio_put_uint32(reply, i);
 		

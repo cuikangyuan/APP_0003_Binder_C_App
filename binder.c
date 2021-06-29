@@ -389,6 +389,7 @@ void binder_link_to_death(struct binder_state *bs, uint32_t target, struct binde
     binder_write(bs, &data, sizeof(data));
 }
 
+//binder_call(bs, &msg, &reply, target, SVC_MGR_ADD_SERVICE)
 int binder_call(struct binder_state *bs,
                 struct binder_io *msg, struct binder_io *reply,
                 uint32_t target, uint32_t code)
@@ -406,9 +407,10 @@ int binder_call(struct binder_state *bs,
         goto fail;
     }
 
+    //1.注册服务：构造数据binder io -> binder_transaction_data ->  binder_write_read
     writebuf.cmd = BC_TRANSACTION;
-    writebuf.txn.target.handle = target;
-    writebuf.txn.code = code;
+    writebuf.txn.target.handle = target;//0
+    writebuf.txn.code = code;//SVC_MGR_ADD_SERVICE
     writebuf.txn.flags = 0;
     writebuf.txn.data_size = msg->data - msg->data0;
     writebuf.txn.offsets_size = ((char*) msg->offs) - ((char*) msg->offs0);
@@ -425,6 +427,14 @@ int binder_call(struct binder_state *bs,
         bwr.read_consumed = 0;
         bwr.read_buffer = (uintptr_t) readbuf;
 
+        //2.注册服务发送数据 ioctl 之后进入驱动程序
+        /*
+        把数据放入service manager进程todo链表中 并唤醒
+        a.根据handle找到目的进程service manager
+        b.把数据copy_from_user放到service manager mmap映射的内核空间
+        c.处理offset数据 flatten binder obj
+        d.唤醒目的进程
+        */
         res = ioctl(bs->fd, BINDER_WRITE_READ, &bwr);
 
         if (res < 0) {
@@ -466,6 +476,7 @@ void binder_loop(struct binder_state *bs, binder_handler func)
         bwr.read_consumed = 0;
         bwr.read_buffer = (uintptr_t) readbuf;
 
+        //注册服务：驱动将注册服务的数据写入svmgr 内核空间后 ，唤醒svmgr进程，然后svmgr进程通过ioctl 读到用户态进程空间
         res = ioctl(bs->fd, BINDER_WRITE_READ, &bwr);
 
         if (res < 0) {
@@ -473,6 +484,7 @@ void binder_loop(struct binder_state *bs, binder_handler func)
             break;
         }
 
+        //注册服务：收到数据cmd为BR_TRANSACTION
         res = binder_parse(bs, 0, (uintptr_t) readbuf, bwr.read_consumed, func);
         if (res == 0) {
             ALOGE("binder_loop: unexpected reply?!\n");
@@ -493,6 +505,8 @@ void bio_init_from_txn(struct binder_io *bio, struct binder_transaction_data *tx
     bio->offs_avail = txn->offsets_size / sizeof(size_t);
     bio->flags = BIO_F_SHARED;
 }
+
+//bio_init(&msg, iodata, sizeof(iodata), 4);
 
 void bio_init(struct binder_io *bio, void *data,
               size_t maxdata, size_t maxoffs)
