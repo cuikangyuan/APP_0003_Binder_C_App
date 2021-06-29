@@ -15,6 +15,7 @@
 
 
 
+//svcmgr_lookup(bs, svcmgr, "goodbye");
 uint32_t svcmgr_lookup(struct binder_state *bs, uint32_t target, const char *name)
 {
     uint32_t handle;
@@ -23,8 +24,8 @@ uint32_t svcmgr_lookup(struct binder_state *bs, uint32_t target, const char *nam
 
     bio_init(&msg, iodata, sizeof(iodata), 4);
     bio_put_uint32(&msg, 0);  // strict mode header
-    bio_put_string16_x(&msg, SVC_MGR_NAME);
-    bio_put_string16_x(&msg, name);
+    bio_put_string16_x(&msg, SVC_MGR_NAME);//0 
+    bio_put_string16_x(&msg, name); // 2.è·å–æœåŠ¡ ä¼ å…¥'hello'
 
     if (binder_call(bs, &msg, &reply, target, SVC_MGR_CHECK_SERVICE))
         return 0;
@@ -49,18 +50,18 @@ void sayhello(void)
     unsigned iodata[512/4];
     struct binder_io msg, reply;
 
-	/* ¹¹Ôìbinder_io */
+	/* ï¿½ï¿½ï¿½ï¿½binder_io */
     bio_init(&msg, iodata, sizeof(iodata), 4);
     bio_put_uint32(&msg, 0);  // strict mode header
     bio_put_string16_x(&msg, "IHelloService");
 
-	/* ·ÅÈë²ÎÊı */
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 
-	/* µ÷ÓÃbinder_call */
+	/* ï¿½ï¿½ï¿½ï¿½binder_call */
     if (binder_call(g_bs, &msg, &reply, g_hello_handle, HELLO_SVR_CMD_SAYHELLO))
         return ;
 	
-	/* ´ÓreplyÖĞ½âÎö³ö·µ»ØÖµ */
+	/* ï¿½ï¿½replyï¿½Ğ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ */
 
     binder_done(g_bs, &msg, &reply);
 	
@@ -73,19 +74,19 @@ int sayhello_to(char *name)
 	int ret;
 	int exception;
 
-	/* ¹¹Ôìbinder_io */
+	/* ï¿½ï¿½ï¿½ï¿½binder_io */
 	bio_init(&msg, iodata, sizeof(iodata), 4);
 	bio_put_uint32(&msg, 0);  // strict mode header
     bio_put_string16_x(&msg, "IHelloService");
 
-	/* ·ÅÈë²ÎÊı */
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     bio_put_string16_x(&msg, name);
 
-	/* µ÷ÓÃbinder_call */
+	/* ï¿½ï¿½ï¿½ï¿½binder_call */
 	if (binder_call(g_bs, &msg, &reply, g_hello_handle, HELLO_SVR_CMD_SAYHELLO_TO))
 		return 0;
 	
-	/* ´ÓreplyÖĞ½âÎö³ö·µ»ØÖµ */
+	/* ï¿½ï¿½replyï¿½Ğ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ */
 	exception = bio_get_uint32(&reply);
 	if (exception)
 		ret = -1;
@@ -104,18 +105,18 @@ void saygoodbye(void)
     unsigned iodata[512/4];
     struct binder_io msg, reply;
 
-	/* ¹¹Ôìbinder_io */
+	/* ï¿½ï¿½ï¿½ï¿½binder_io */
     bio_init(&msg, iodata, sizeof(iodata), 4);
     bio_put_uint32(&msg, 0);  // strict mode header
     bio_put_string16_x(&msg, "IGoodbyeService");
 
-	/* ·ÅÈë²ÎÊı */
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 
-	/* µ÷ÓÃbinder_call */
+	/* ï¿½ï¿½ï¿½ï¿½binder_call */
     if (binder_call(g_bs, &msg, &reply, g_goodbye_handle, GOODBYE_SVR_CMD_SAYGOODBYE))
         return ;
 	
-	/* ´ÓreplyÖĞ½âÎö³ö·µ»ØÖµ */
+	/* ï¿½ï¿½replyï¿½Ğ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ */
 
     binder_done(g_bs, &msg, &reply);
 	
@@ -128,19 +129,19 @@ int saygoodbye_to(char *name)
 	int ret;
 	int exception;
 
-	/* ¹¹Ôìbinder_io */
+	/* ï¿½ï¿½ï¿½ï¿½binder_io */
 	bio_init(&msg, iodata, sizeof(iodata), 4);
 	bio_put_uint32(&msg, 0);  // strict mode header
     bio_put_string16_x(&msg, "IGoodbyeService");
 
-	/* ·ÅÈë²ÎÊı */
+	/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     bio_put_string16_x(&msg, name);
 
-	/* µ÷ÓÃbinder_call */
+	/* ï¿½ï¿½ï¿½ï¿½binder_call */
 	if (binder_call(g_bs, &msg, &reply, g_goodbye_handle, GOODBYE_SVR_CMD_SAYGOODBYE_TO))
 		return 0;
 	
-	/* ´ÓreplyÖĞ½âÎö³ö·µ»ØÖµ */
+	/* ï¿½ï¿½replyï¿½Ğ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ */
 	exception = bio_get_uint32(&reply);
 	if (exception)
 		ret = -1;
@@ -185,6 +186,8 @@ int main(int argc, char **argv)
 
 
 	/* get service */
+	//2. è·å–æœåŠ¡ï¼šè·å–åˆ°handleåï¼Œå¯ä»¥å‘è¿™ä¸ªhandleå‘æ¶ˆæ¯ï¼Œé©±åŠ¨ä¸­é€šè¿‡handle -> binder_ref -> binder_node -> binder_proc
+	//æœ€ç»ˆå°†æ•°æ®å†™å…¥handleæŒ‡å‘çš„ç›®çš„è¿›ç¨‹å¹¶å”¤é†’å®ƒ
 	handle = svcmgr_lookup(bs, svcmgr, "goodbye");
 	if (!handle) {
         fprintf(stderr, "failed to get goodbye service\n");

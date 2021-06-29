@@ -316,6 +316,7 @@ int binder_parse(struct binder_state *bs, struct binder_io *bio,
 
                 bio_init(&reply, rdata, sizeof(rdata), 4);
                 bio_init_from_txn(&msg, txn);
+                //调用服务的处理方法处理数据 svcmgr_handler
                 res = func(bs, txn, &msg, &reply);
                 binder_send_reply(bs, &reply, txn->data.ptr.buffer, res);
             }
@@ -389,7 +390,10 @@ void binder_link_to_death(struct binder_state *bs, uint32_t target, struct binde
     binder_write(bs, &data, sizeof(data));
 }
 
+//注册服务
 //binder_call(bs, &msg, &reply, target, SVC_MGR_ADD_SERVICE)
+//获取服务
+//binder_call(bs, &msg, &reply, target, SVC_MGR_CHECK_SERVICE)
 int binder_call(struct binder_state *bs,
                 struct binder_io *msg, struct binder_io *reply,
                 uint32_t target, uint32_t code)
@@ -408,9 +412,13 @@ int binder_call(struct binder_state *bs,
     }
 
     //1.注册服务：构造数据binder io -> binder_transaction_data ->  binder_write_read
+    //2.获取服务：构造数据binder io -> binder_transaction_data ->  binder_write_read
     writebuf.cmd = BC_TRANSACTION;
-    writebuf.txn.target.handle = target;//0
-    writebuf.txn.code = code;//SVC_MGR_ADD_SERVICE
+    //0
+    writebuf.txn.target.handle = target;
+    //SVC_MGR_ADD_SERVICE
+    //SVC_MGR_CHECK_SERVICE
+    writebuf.txn.code = code;
     writebuf.txn.flags = 0;
     writebuf.txn.data_size = msg->data - msg->data0;
     writebuf.txn.offsets_size = ((char*) msg->offs) - ((char*) msg->offs0);
@@ -428,6 +436,7 @@ int binder_call(struct binder_state *bs,
         bwr.read_buffer = (uintptr_t) readbuf;
 
         //2.注册服务发送数据 ioctl 之后进入驱动程序
+        //2.获取服务发送数据
         /*
         把数据放入service manager进程todo链表中 并唤醒
         a.根据handle找到目的进程service manager
