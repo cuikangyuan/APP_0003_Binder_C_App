@@ -412,7 +412,9 @@ int binder_call(struct binder_state *bs,
     }
 
     //1.注册服务：构造数据binder io -> binder_transaction_data ->  binder_write_read
-    //2.获取服务：构造数据binder io -> binder_transaction_data ->  binder_write_read
+
+    //target: 0  msg: android.os.IServiceManager hello 
+    //2.获取服务：构造数据binder io  -> binder_transaction_data ->  binder_write_read
     writebuf.cmd = BC_TRANSACTION;
     //0
     writebuf.txn.target.handle = target;
